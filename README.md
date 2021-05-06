@@ -1,41 +1,42 @@
 ![iRacing image](https://www.jayski.com/wp-content/uploads/sites/31/2020/03/14/iRacing.png)
 
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/JBonifay/irsdk_java)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/ramsito90/irsdk_java)
 ![Maven CI/CD](https://github.com/JBonifay/irsdk_java/workflows/Maven%20CI/CD/badge.svg)
-![GitHub](https://img.shields.io/github/license/JBonifay/irsdk_java)
-![GitHub Repo stars](https://img.shields.io/github/stars/JBonifay/irsdk_java?style=social)
-![GitHub watchers](https://img.shields.io/github/watchers/JBonifay/irsdk_java?style=social)
+![GitHub](https://img.shields.io/github/license/ramsito90/irsdk_java)
+![GitHub Repo stars](https://img.shields.io/github/stars/ramsito90/irsdk_java?style=social)
+![GitHub watchers](https://img.shields.io/github/watchers/ramsito90/irsdk_java?style=social)
 
 # iRacing java SDK  
 Unofficial [iRacing](https://www.iracing.com/) SDK implementation for Java :checkered_flag:
 
+Forked from https://github.com/JBonifay/irsdk_java
+
 The sdk provide API for fetching simulator data through [reactor Flux](https://projectreactor.io/) 
 
-* [Github repository](https://github.com/JBonifay/irsdk_java)  
-* [Documentation](https://jbonifay.github.io/irsdk_java/)  
+* [Github repository](https://github.com/ramsito90/irsdk_java)  
+* [Documentation](https://ramsito90.github.io/irsdk_java/)  
 * [Forum thread](https://members.iracing.com/jforum/posts/list/3749393.page#12148089)  
 
 # Install
 ##### Maven
-You can find active release [here](https://github.com/JBonifay/irsdk_java/packages/449562)
 Just follow the instructions and you'll be ready
 
-Add this to pom.xml:
-```xml
-<dependency>
-  <groupId>com.joffrey.iracing</groupId>
-  <artifactId>irsdkjava-spring-boot-starter</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-</dependency>
+Add this to build.gradle:
+```groovy
+implementation 'com.joffrey.iracing:irsdkjava-spring-boot-starter:1.1.0-SNAPSHOT'
 ```
 
-Run via command line:
-```
-$ mvn install
+And this to settings.gradle
+```groovy
+sourceControl {
+    gitRepository(URI.create("https://github.com/ramsito90/irsdk_java.git")) {
+        producesModule("com.joffrey.iracing:irsdkjava-spring-boot-starter")
+    }
+}
 ```
 
 ##### In your MainApplication
-The java Sdk use spring autoconfiguration, you just need to import IRacingLibrary object in your project 
+The java SDK uses the Spring Autoconfiguration system, you just need to import IRacingLibrary object in your project 
 
 ```java
 @Autowired
@@ -46,7 +47,7 @@ private IRacingLibrary iRacingLibrary;
 ##### Dependencies  
 - Java 11  
 - Spring Boot  
-- Maven  
+- Gradle
 
 
 # Available API  

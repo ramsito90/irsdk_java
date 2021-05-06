@@ -1,6 +1,7 @@
 /*
  *
  *    Copyright (C) 2020 Joffrey Bonifay
+ *    Copyright (C) 2021 Ramsés Corporales
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,7 +31,10 @@ import com.joffrey.iracing.irsdkjava.telemetry.model.TelemetryData.FuelAndAngles
 import com.joffrey.iracing.irsdkjava.telemetry.model.TelemetryData.PedalsAndSpeed;
 import com.joffrey.iracing.irsdkjava.telemetry.model.TelemetryData.Session;
 import com.joffrey.iracing.irsdkjava.telemetry.model.TelemetryData.Weather;
+
 import java.time.Duration;
+import java.util.Arrays;
+
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.ConnectableFlux;
@@ -41,15 +45,15 @@ import reactor.core.publisher.Mono;
 @Service
 public class TelemetryService {
 
-    private final FluxProperties                 fluxProperties;
-    private final SdkStarter                     sdkStarter;
+    private final FluxProperties fluxProperties;
+    private final SdkStarter sdkStarter;
     private final ConnectableFlux<TelemetryData> telemetryDataFlux;
 
     public TelemetryService(FluxProperties fluxProperties, SdkStarter sdkStarter) {
         this.fluxProperties = fluxProperties;
         this.sdkStarter = sdkStarter;
         this.telemetryDataFlux = Flux.interval(Duration.ofMillis(this.fluxProperties.getTelemetryIntervalInMs()))
-                                     .filter(aLong -> sdkStarter.isRunning()).flatMap(aLong -> loadTelemetryData()).publish();
+                .filter(aLong -> sdkStarter.isRunning()).flatMap(aLong -> loadTelemetryData()).publish();
 
     }
 
@@ -59,142 +63,64 @@ public class TelemetryService {
 
     private Flux<TelemetryData> loadTelemetryData() {
 
-        Flux<TelemetryData.PedalsAndSpeed> firstGroup = Flux.zip(Mono.just(sdkStarter.getVarFloat("Throttle")),
-                                                                 Mono.just(sdkStarter.getVarFloat("Brake")),
-                                                                 Mono.just(sdkStarter.getVarFloat("Clutch")),
-                                                                 Mono.just(sdkStarter.getVarInt("Gear")),
-                                                                 Mono.just(sdkStarter.getVarFloat("ShiftGrindRPM")),
-                                                                 Mono.just(sdkStarter.getVarFloat("RPM")),
-                                                                 Mono.just(sdkStarter.getVarFloat("Speed")))
-                                                            .map(o -> new PedalsAndSpeed(o.getT1(),
-                                                                                         o.getT2(),
-                                                                                         o.getT3(),
-                                                                                         o.getT4(),
-                                                                                         o.getT5(),
-                                                                                         o.getT6(),
-                                                                                         o.getT7()));
+        final TelemetryData telemetryData = new TelemetryData();
 
-        Flux<TelemetryData.FuelAndAngles> secondGroup = Flux.zip(Mono.just(sdkStarter.getVarFloat("FuelLevel")),
-                                                                 Mono.just(sdkStarter.getVarFloat("FuelLevelPct")),
-                                                                 Mono.just(sdkStarter.getVarFloat("FuelUsePerHour")),
-                                                                 Mono.just(sdkStarter.getVarFloat("LatAccel")),
-                                                                 Mono.just(sdkStarter.getVarFloat("LongAccel")),
-                                                                 Mono.just(sdkStarter.getVarFloat("SteeringWheelAngle")))
-                                                            .map(o -> new FuelAndAngles(o.getT1(),
-                                                                                        o.getT2(),
-                                                                                        o.getT3(),
-                                                                                        o.getT4(),
-                                                                                        o.getT5(),
-                                                                                        o.getT6()));
+        telemetryData.setPedalsAndSpeed(new PedalsAndSpeed(
+                sdkStarter.getVarFloat("Throttle"),
+                sdkStarter.getVarFloat("Brake"),
+                sdkStarter.getVarFloat("Clutch"),
+                sdkStarter.getVarInt("Gear"),
+                sdkStarter.getVarFloat("ShiftGrindRPM"),
+                sdkStarter.getVarFloat("RPM"),
+                sdkStarter.getVarFloat("Speed")
+        ));
 
-        Flux<TelemetryData.Weather> thirdGroup = Flux.zip(Mono.just(sdkStarter.getVarFloat("AirPressure")),
-                                                          Mono.just(sdkStarter.getVarFloat("AirTemp")),
-                                                          Mono.just(sdkStarter.getVarFloat("RelativeHumidity")),
-                                                          Mono.just(sdkStarter.getVarInt("Skies")),
-                                                          Mono.just(sdkStarter.getVarFloat("TrackTemp")),
-                                                          Mono.just(sdkStarter.getVarFloat("WindDir")),
-                                                          Mono.just(sdkStarter.getVarFloat("WindVel")),
-                                                          Mono.just(sdkStarter.getVarInt("WeatherType")))
-                                                     .map(o -> new Weather(o.getT1(),
-                                                                           o.getT2(),
-                                                                           o.getT3(),
-                                                                           getSkies(o.getT4()),
-                                                                           o.getT5(),
-                                                                           o.getT6(),
-                                                                           o.getT7(),
-                                                                           getWeatherType(o.getT8())));
+        telemetryData.setFuelAndAngles(new FuelAndAngles(
+                sdkStarter.getVarFloat("FuelLevel"),
+                sdkStarter.getVarFloat("FuelLevelPct"),
+                sdkStarter.getVarFloat("FuelUsePerHour"),
+                sdkStarter.getVarFloat("LatAccel"),
+                sdkStarter.getVarFloat("LongAccel"),
+                sdkStarter.getVarFloat("SteeringWheelAngle")
+        ));
 
-        Flux<TelemetryData.Session> fourthGroup = Flux.zip(Mono.just(sdkStarter.getVarDouble("SessionTime")),
-                                                           Mono.just(sdkStarter.getVarDouble("SessionTimeRemain")),
-                                                           Mono.just(sdkStarter.getVarFloat("LapBestLapTime")),
-                                                           Mono.just(sdkStarter.getVarInt("Lap")),
-                                                           Mono.just(sdkStarter.getVarFloat("LapCurrentLapTime")),
-                                                           Mono.just(sdkStarter.getVarInt("LapBestLap")),
-                                                           Mono.just(sdkStarter.getVarFloat("LapDistPct")))
-                                                      .map(o -> new Session(o.getT1(),
-                                                                            o.getT2(),
-                                                                            o.getT3(),
-                                                                            o.getT4(),
-                                                                            o.getT5(),
-                                                                            o.getT6(),
-                                                                            o.getT7()));
+        Arrays.stream(new String[]{"LF", "RF", "LR", "RR"}).forEach(tyre ->
+                telemetryData.setTyre(tyre, new TelemetryData.Tyre(
+                        sdkStarter.getVarFloat(tyre + "wearL"),
+                        sdkStarter.getVarFloat(tyre + "wearM"),
+                        sdkStarter.getVarFloat(tyre + "wearR"),
+                        sdkStarter.getVarFloat(tyre + "tempL"),
+                        sdkStarter.getVarFloat(tyre + "tempM"),
+                        sdkStarter.getVarFloat(tyre + "tempR"),
+                        sdkStarter.getVarFloat(tyre + "tempCL"),
+                        sdkStarter.getVarFloat(tyre + "tempCM"),
+                        sdkStarter.getVarFloat(tyre + "tempCR"),
+                        sdkStarter.getVarFloat(tyre + "pressure"),
+                        sdkStarter.getVarFloat(tyre + "speed")))
+        );
 
-        Flux<TelemetryData> firstZip = Flux.zip(firstGroup, secondGroup, (pedalsAndSpeed, fuelAndAngles) -> {
-            TelemetryData telemetryData = new TelemetryData();
-            telemetryData.setThrottle(pedalsAndSpeed.getThrottle());
-            telemetryData.setBrake(pedalsAndSpeed.getBrake());
-            telemetryData.setClutch(pedalsAndSpeed.getClutch());
-            telemetryData.setGear(pedalsAndSpeed.getGear());
-            telemetryData.setShiftGrindRPM(pedalsAndSpeed.getShiftGrindRPM());
-            telemetryData.setRPM(pedalsAndSpeed.getRPM());
-            telemetryData.setSpeed(pedalsAndSpeed.getSpeed());
+        telemetryData.setWeather(new Weather(
+                sdkStarter.getVarFloat("AirPressure"),
+                sdkStarter.getVarFloat("AirTemp"),
+                sdkStarter.getVarFloat("RelativeHumidity"),
+                getSkies(sdkStarter.getVarInt("Skies")),
+                sdkStarter.getVarFloat("TrackTemp"),
+                sdkStarter.getVarFloat("WindDir"),
+                sdkStarter.getVarFloat("WindVel"),
+                getWeatherType(sdkStarter.getVarInt("WeatherType"))
+        ));
 
-            telemetryData.setFuelLevel(fuelAndAngles.getFuelLevel());
-            telemetryData.setFuelLevelPct(fuelAndAngles.getFuelLevelPct());
-            telemetryData.setFuelUsePerHour(fuelAndAngles.getFuelUsePerHour());
-            telemetryData.setLatAccel(fuelAndAngles.getLatAccel());
-            telemetryData.setLongAccel(fuelAndAngles.getLongAccel());
-            telemetryData.setSteeringWheelAngle(fuelAndAngles.getSteeringWheelAngle());
-            return telemetryData;
-        });
-        Flux<TelemetryData> secondZip = Flux.zip(thirdGroup, fourthGroup, (weather, session) -> {
-            TelemetryData telemetryData = new TelemetryData();
-            telemetryData.setAirPressure(weather.getAirPressure());
-            telemetryData.setAirTemp(weather.getAirTemp());
-            telemetryData.setRelativeHumidity(weather.getRelativeHumidity());
-            telemetryData.setSkies(weather.getSkies());
-            telemetryData.setTrackTemp(weather.getTrackTemp());
-            telemetryData.setWindDir(weather.getWindDir());
-            telemetryData.setWindVel(weather.getWindVel());
-            telemetryData.setWeatherType(weather.getWeatherType());
+        telemetryData.setSession(new Session(
+                sdkStarter.getVarDouble("SessionTime"),
+                sdkStarter.getVarDouble("SessionTimeRemain"),
+                sdkStarter.getVarFloat("LapBestLapTime"),
+                sdkStarter.getVarInt("Lap"),
+                sdkStarter.getVarFloat("LapCurrentLapTime"),
+                sdkStarter.getVarInt("LapBestLap"),
+                sdkStarter.getVarFloat("LapDistPct")
+        ));
 
-            telemetryData.setSessionTime(session.getSessionTime());
-            telemetryData.setSessionTimeRemain(session.getSessionTimeRemain());
-            telemetryData.setLapBestLapTime(session.getLapBestLapTime());
-            telemetryData.setLap(session.getLap());
-            telemetryData.setLapCurrentLapTime(session.getLapCurrentLapTime());
-            telemetryData.setLapBestLap(session.getLapBestLap());
-            telemetryData.setLapDistPct(session.getLapDistPct());
-
-            return telemetryData;
-        });
-
-        return Flux.zip(firstZip, secondZip, (a, b) -> {
-            TelemetryData telemetryData = new TelemetryData();
-            telemetryData.setThrottle(a.getThrottle());
-            telemetryData.setBrake(a.getBrake());
-            telemetryData.setClutch(a.getClutch());
-            telemetryData.setGear(a.getGear());
-            telemetryData.setShiftGrindRPM(a.getShiftGrindRPM());
-            telemetryData.setRPM(a.getRPM());
-            telemetryData.setSpeed(a.getSpeed());
-
-            telemetryData.setFuelLevel(a.getFuelLevel());
-            telemetryData.setFuelLevelPct(a.getFuelLevelPct());
-            telemetryData.setFuelUsePerHour(a.getFuelUsePerHour());
-            telemetryData.setLatAccel(a.getLatAccel());
-            telemetryData.setLongAccel(a.getLongAccel());
-            telemetryData.setSteeringWheelAngle(a.getSteeringWheelAngle());
-
-            telemetryData.setAirPressure(b.getAirPressure());
-            telemetryData.setAirTemp(b.getAirTemp());
-            telemetryData.setRelativeHumidity(b.getRelativeHumidity());
-            telemetryData.setSkies(b.getSkies());
-            telemetryData.setTrackTemp(b.getTrackTemp());
-            telemetryData.setWindDir(b.getWindDir());
-            telemetryData.setWindVel(b.getWindVel());
-            telemetryData.setWeatherType(b.getWeatherType());
-
-            telemetryData.setSessionTime(b.getSessionTime());
-            telemetryData.setSessionTimeRemain(b.getSessionTimeRemain());
-            telemetryData.setLapBestLapTime(b.getLapBestLapTime());
-            telemetryData.setLap(b.getLap());
-            telemetryData.setLapCurrentLapTime(b.getLapCurrentLapTime());
-            telemetryData.setLapBestLap(b.getLapBestLap());
-            telemetryData.setLapDistPct(b.getLapDistPct());
-
-            return telemetryData;
-        });
+        return Flux.just(telemetryData);
 
     }
 

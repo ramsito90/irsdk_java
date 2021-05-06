@@ -25,51 +25,48 @@ package com.joffrey.iracing.irsdkjava.telemetry.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 public class TelemetryData {
 
     // Pedals && Speed
-    private float throttle;
-    private float brake;
-    private float clutch;
-    private int   gear;
-    private float shiftGrindRPM;
-    private float RPM;
-    private float speed;
+    private PedalsAndSpeed pedalsAndSpeed = new PedalsAndSpeed();
 
     // Fuel && Angles
-    private float fuelLevel;
-    private float fuelLevelPct;
-    private float fuelUsePerHour;
-    private float latAccel;
-    private float longAccel;
-    private float steeringWheelAngle;
+    private FuelAndAngles fuelAndAngles = new FuelAndAngles();
+
+    // Tyres
+    private Tyre LFtyre = new Tyre();
+    private Tyre RFtyre = new Tyre();
+    private Tyre LRtyre = new Tyre();
+    private Tyre RRtyre = new Tyre();
 
     // Weather
-    private float  airPressure;
-    private float  airTemp;
-    private float  relativeHumidity;
-    private String skies;
-    private float  trackTemp;
-    private float  windDir;
-    private float  windVel;
-    private String weatherType;
+    private Weather weather = new Weather();
 
     // Session
-    private double sessionTime;
-    private double sessionTimeRemain;
-    private float  lapBestLapTime;
-    private int    lap;
-    private float  lapCurrentLapTime;
-    private int    lapBestLap;
-    private float  lapDistPct;
+    private Session session = new Session();
 
-    @AllArgsConstructor
-    @Data
+    public void setTyre(String tyre, Tyre data) {
+        switch (tyre) {
+            case "LF":
+                setLFtyre(data);
+                break;
+            case "RF":
+                setRFtyre(data);
+                break;
+            case "LR":
+                setLRtyre(data);
+                break;
+            case "RR":
+                setRRtyre(data);
+                break;
+        }
+    }
+
+    @Data @NoArgsConstructor @AllArgsConstructor
     public static class PedalsAndSpeed {
-
-        // Pedals && Speed
         private float throttle;
         private float brake;
         private float clutch;
@@ -79,10 +76,8 @@ public class TelemetryData {
         private float speed;
     }
 
-    @AllArgsConstructor
-    @Data
+    @Data @NoArgsConstructor @AllArgsConstructor
     public static class FuelAndAngles {
-
         private float fuelLevel;
         private float fuelLevelPct;
         private float fuelUsePerHour;
@@ -91,10 +86,23 @@ public class TelemetryData {
         private float steeringWheelAngle;
     }
 
-    @AllArgsConstructor
-    @Data
-    public static class Weather {
+    @Data @NoArgsConstructor @AllArgsConstructor
+    public static class Tyre {
+        private float wearL;
+        private float wearM;
+        private float wearR;
+        private float tempL;
+        private float tempM;
+        private float tempR;
+        private float tempCL;
+        private float tempCM;
+        private float tempCR;
+        private float pressure;
+        private float speed;
+    }
 
+    @Data @NoArgsConstructor @AllArgsConstructor
+    public static class Weather {
         private float  airPressure;
         private float  airTemp;
         private float  relativeHumidity;
@@ -105,10 +113,8 @@ public class TelemetryData {
         private String weatherType;
     }
 
-    @AllArgsConstructor
-    @Data
+    @Data @NoArgsConstructor @AllArgsConstructor
     public static class Session {
-
         private double sessionTime;
         private double sessionTimeRemain;
         private float  lapBestLapTime;

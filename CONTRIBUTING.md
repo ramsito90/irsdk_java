@@ -4,8 +4,8 @@ Thanks for contributing!
 Any help is welcome, it can be on fix bug, add missing samples, code review, code improvement ... 
 
 ## Issue
-Ensure the bug was not already reported by searching on GitHub under [issues](https://github.com/JBonifay/irsdk_java/issues).   
-If you're unable to find an open issue addressing the bug, open a [new issue](https://github.com/JBonifay/irsdk_java/issues/new).  
+Ensure the bug was not already reported by searching on GitHub under [issues](https://github.com/ramsito90/irsdk_java/issues).   
+If you're unable to find an open issue addressing the bug, open a [new issue](https://github.com/ramsito90/irsdk_java/issues/new).  
 
 ### Write detailed information
 Detailed information is very helpful to understand an issue.
