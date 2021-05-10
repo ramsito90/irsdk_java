@@ -13,6 +13,8 @@ repositories {
     mavenCentral()
 }
 
+lombok.config['lombok.accessors.chain'] = 'true'
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
