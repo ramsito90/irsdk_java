@@ -66,6 +66,8 @@ public class LapTimingData {
         private String carId;
         private String carClassID;
         private String carClassColor;
+        private String carScreenName;
+        private String carScreenNameShort;
         private String iRating;
         private String licLevel;
         private String licString;

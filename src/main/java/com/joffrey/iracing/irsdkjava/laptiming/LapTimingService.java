@@ -124,6 +124,8 @@ public class LapTimingService {
                 .setCarId(driverInfoYaml.getCarID())
                 .setCarClassID(driverInfoYaml.getCarClassID())
                 .setCarClassColor(driverInfoYaml.getCarClassColor())
+                .setCarScreenName(driverInfoYaml.getCarScreenName())
+                .setCarScreenNameShort(driverInfoYaml.getCarScreenNameShort())
                 .setIRating(driverInfoYaml.getIRating())
                 .setLicLevel(driverInfoYaml.getLicLevel())
                 .setLicString(driverInfoYaml.getLicString())
