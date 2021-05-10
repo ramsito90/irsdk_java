@@ -31,6 +31,7 @@ import com.joffrey.iracing.irsdkjava.model.SdkStarter;
 import com.joffrey.iracing.irsdkjava.model.defines.TrkLoc;
 import com.joffrey.iracing.irsdkjava.yaml.YamlService;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -77,6 +78,9 @@ public class LapTimingService {
     private Flux<List<LapTimingData>> loadLapTimingDataList() {
         DriversInfoYaml driverInfo = yamlService.getYamlFile().getDriverInfo();
         int totalSize = driverInfo == null || driverInfo.getDrivers() == null ? 0 : driverInfo.getDrivers().size();
+        if (totalSize == 0) {
+            return Flux.just(new ArrayList<>());
+        }
         return Flux.range(0, totalSize)
                 .subscribeOn(Schedulers.parallel())
                 .flatMap(this::getLapTimingDataForCarIdx)
