@@ -78,7 +78,7 @@ public class RaceInfoService {
                                                                 s.getT1().getTrackCountry(),
                                                                 s.getT1().getEventType(),
                                                                 (int) s.getT2().orElse(0),
-                                                                Integer.parseInt(s.getT3())));
+                                                                parseInt(s.getT3())));
 
         return Flux.zip(firstGroup, secondGroup, (liveData, yamlData) -> {
             RaceInfo raceInfo = new RaceInfo();
@@ -98,5 +98,12 @@ public class RaceInfoService {
 
             return raceInfo;
         });
+    }
+
+    private static Integer parseInt(String text) {
+        if (text == null || text.length() < 1) {
+            return 0;
+        }
+        return Integer.parseInt(text);
     }
 }
