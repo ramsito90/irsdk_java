@@ -34,6 +34,9 @@ import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
+
+import com.joffrey.iracing.irsdkjava.yaml.irsdkyaml.DriversInfoYaml;
+import com.joffrey.iracing.irsdkjava.yaml.irsdkyaml.YamlFile;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.ConnectableFlux;
@@ -73,7 +76,9 @@ public class LapTimingService {
      * Get a list of {@link LapTimingData} object filled with each car data
      */
     private Flux<List<LapTimingData>> loadLapTimingDataList() {
-        int totalSize = yamlService.getYamlFile().getDriverInfo().getDrivers().size();
+        YamlFile yamlFile = yamlService.getYamlFile();
+        DriversInfoYaml driverInfo = yamlFile.getDriverInfo();
+        int totalSize = driverInfo.getDrivers().size();
         return Flux.range(0, totalSize).subscribeOn(Schedulers.parallel()).flatMap(this::getLapTimingDataForCarIdx)
                    .sort(getLapTimingDataComparator()).buffer(totalSize).map(this::setDriversNewPosition)
                    .map(this::setDriversInterval);

@@ -25,6 +25,8 @@ package com.joffrey.iracing.irsdkjava.yaml.irsdkyaml;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 
@@ -71,7 +73,7 @@ public class DriversInfoYaml {
     @JsonProperty
     private String               DriverSetupPassedTech   = "";
     @JsonProperty
-    private List<DriverInfoYaml> Drivers;
+    private List<DriverInfoYaml> Drivers = new ArrayList<>();
 
 
 }
