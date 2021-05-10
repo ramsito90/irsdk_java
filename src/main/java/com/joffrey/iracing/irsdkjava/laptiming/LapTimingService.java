@@ -36,6 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import com.joffrey.iracing.irsdkjava.yaml.irsdkyaml.DriverInfoYaml;
 import com.joffrey.iracing.irsdkjava.yaml.irsdkyaml.DriversInfoYaml;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
@@ -83,7 +84,7 @@ public class LapTimingService {
         }
         return Flux.range(0, totalSize)
                 .subscribeOn(Schedulers.parallel())
-                .flatMap(this::getLapTimingDataForCarIdx)
+                .flatMap(carIdx -> getLapTimingDataForCarIdx(carIdx, driverInfo))
                 .sort(getLapTimingDataComparator())
                 .buffer(totalSize)
                 .map(this::setDriversNewPosition)
@@ -94,70 +95,45 @@ public class LapTimingService {
      * Get lap timing data for a given car idx
      *
      * @param carIdx the car idx
+     * @param driverInfo
      * @return {@link LapTimingData} filled with values
      */
-    private Flux<LapTimingData> getLapTimingDataForCarIdx(int carIdx) {
+    private Flux<LapTimingData> getLapTimingDataForCarIdx(int carIdx, DriversInfoYaml driverInfo) {
+        LapTimingData lapTimingData = new LapTimingData();
+        lapTimingData.setCarIdx(carIdx);
 
-        Flux<LapTimingData.LiveData> firstGroup = Flux.zip(Mono.just(sdkStarter.getVarInt("CarIdxPosition", carIdx)),
-                                                           Mono.just(sdkStarter.getVarInt("CarIdxClassPosition", carIdx)),
-                                                           Mono.just(sdkStarter.getVarFloat("CarIdxEstTime", carIdx)),
-                                                           Mono.just(sdkStarter.getVarFloat("CarIdxF2Time", carIdx)),
-                                                           Mono.just(sdkStarter.getVarInt("CarIdxLap", carIdx)),
-                                                           Mono.just(sdkStarter.getVarFloat("CarIdxLapDistPct", carIdx)),
-                                                           Mono.just(sdkStarter.getVarFloat("CarIdxLastLapTime", carIdx)),
-                                                           Mono.just(sdkStarter.getVarFloat("CarIdxBestLapTime", carIdx)))
-                                                      .map(t -> new LiveData(t.getT1(),
-                                                                             t.getT2(),
-                                                                             t.getT3(),
-                                                                             t.getT4(),
-                                                                             t.getT5(),
-                                                                             t.getT6(),
-                                                                             t.getT7(),
-                                                                             t.getT8()));
+        lapTimingData.setLiveData(new LiveData()
+                .setCarIdxPosition(sdkStarter.getVarInt("CarIdxPosition", carIdx))
+                .setCarIdxClassPosition(sdkStarter.getVarInt("CarIdxClassPosition", carIdx))
+                .setCarIdxEstTime(sdkStarter.getVarFloat("CarIdxEstTime", carIdx))
+                .setCarIdxF2Time(sdkStarter.getVarFloat("CarIdxF2Time", carIdx))
+                .setCarIdxLap(sdkStarter.getVarInt("CarIdxLap", carIdx))
+                .setCarIdxLapDistPct(sdkStarter.getVarFloat("CarIdxLapDistPct", carIdx))
+                .setCarIdxLastLapTime(sdkStarter.getVarFloat("CarIdxLastLapTime", carIdx))
+                .setCarIdxBestLapTime(sdkStarter.getVarFloat("CarIdxBestLapTime", carIdx))
+        );
 
-        Flux<LapTimingData.YamlData> secondGroup = Flux.zip(Mono.just(sdkStarter.getVarInt("CarIdxTrackSurface", carIdx)),
-                                                            Mono.just(yamlService.getYamlFile().getDriverInfo().getDrivers()
-                                                                                 .get(carIdx)))
-                                                       .map(o -> new YamlData(TrkLoc.valueOf(o.getT1()),
-                                                                              o.getT2().getCarIsPaceCar(),
-                                                                              o.getT2().getCarIsAI(),
-                                                                              o.getT2().getUserName(),
-                                                                              o.getT2().getTeamName(),
-                                                                              o.getT2().getCarNumber(),
-                                                                              o.getT2().getIRating(),
-                                                                              o.getT2().getLicLevel(),
-                                                                              o.getT2().getLicString(),
-                                                                              o.getT2().getLicColor(),
-                                                                              o.getT2().getIsSpectator(),
-                                                                              o.getT2().getClubName(),
-                                                                              o.getT2().getDivisionName()));
+        DriverInfoYaml driverInfoYaml = driverInfo.getDrivers().get(carIdx);
+        lapTimingData.setYamlData(new YamlData()
+                .setCarIdxTrackSurface(TrkLoc.valueOf(sdkStarter.getVarInt("CarIdxTrackSurface", carIdx)))
+                .setCarIsPaceCar(driverInfoYaml.getCarIsPaceCar())
+                .setCarIsAI(driverInfoYaml.getCarIsAI())
+                .setUserName(driverInfoYaml.getUserName())
+                .setTeamName(driverInfoYaml.getTeamName())
+                .setCarNumber(driverInfoYaml.getCarNumber())
+                .setCarId(driverInfoYaml.getCarID())
+                .setCarClassID(driverInfoYaml.getCarClassID())
+                .setCarClassColor(driverInfoYaml.getCarClassColor())
+                .setIRating(driverInfoYaml.getIRating())
+                .setLicLevel(driverInfoYaml.getLicLevel())
+                .setLicString(driverInfoYaml.getLicString())
+                .setLicColor(driverInfoYaml.getLicColor())
+                .setIsSpectator(driverInfoYaml.getIsSpectator())
+                .setClubName(driverInfoYaml.getClubName())
+                .setDivisionName(driverInfoYaml.getDivisionName())
+        );
 
-        return Flux.zip(firstGroup, secondGroup, (liveData, yamlData) -> {
-            LapTimingData lapTimingData = new LapTimingData();
-            lapTimingData.setCarIdx(carIdx);
-            lapTimingData.setCarIdxPosition(liveData.getCarIdxPosition());
-            lapTimingData.setCarIdxClassPosition(liveData.getCarIdxClassPosition());
-            lapTimingData.setCarIdxEstTime(liveData.getCarIdxEstTime());
-            lapTimingData.setCarIdxF2Time(liveData.getCarIdxF2Time());
-            lapTimingData.setCarIdxLap(liveData.getCarIdxLap());
-            lapTimingData.setCarIdxLapDistPct(liveData.getCarIdxLapDistPct());
-            lapTimingData.setCarIdxLastLapTime(liveData.getCarIdxLastLapTime());
-            lapTimingData.setCarIdxBestLapTime(liveData.getCarIdxBestLapTime());
-            lapTimingData.setCarIdxTrackSurface(yamlData.getCarIdxTrackSurface());
-            lapTimingData.setCarIsPaceCar(yamlData.getCarIsPaceCar());
-            lapTimingData.setCarIsAI(yamlData.getCarIsAI());
-            lapTimingData.setUserName(yamlData.getUserName());
-            lapTimingData.setTeamName(yamlData.getTeamName());
-            lapTimingData.setCarNumber(yamlData.getCarNumber());
-            lapTimingData.setIRating(yamlData.getIRating());
-            lapTimingData.setLicLevel(yamlData.getLicLevel());
-            lapTimingData.setLicString(yamlData.getLicString());
-            lapTimingData.setLicColor(yamlData.getLicColor());
-            lapTimingData.setIsSpectator(yamlData.getIsSpectator());
-            lapTimingData.setClubName(yamlData.getClubName());
-            lapTimingData.setDivisionName(yamlData.getDivisionName());
-            return lapTimingData;
-        });
+        return Flux.just(lapTimingData);
     }
 
     /**
@@ -168,17 +144,17 @@ public class LapTimingService {
     private Comparator<LapTimingData> getLapTimingDataComparator() {
         return (o1, o2) -> {
             // Check for drivers track pct
-            if (o1.getCarIdxLap() == o2.getCarIdxLap()) {
-                if (o1.getCarIdxLapDistPct() < o2.getCarIdxLapDistPct()) {
+            if (o1.getLiveData().getCarIdxLap() == o2.getLiveData().getCarIdxLap()) {
+                if (o1.getLiveData().getCarIdxLapDistPct() < o2.getLiveData().getCarIdxLapDistPct()) {
                     return 1;
-                } else if (o1.getCarIdxLapDistPct() == o2.getCarIdxLapDistPct()) {
+                } else if (o1.getLiveData().getCarIdxLapDistPct() == o2.getLiveData().getCarIdxLapDistPct()) {
                     return 0;
                 }
             } else {
                 // Put all pos = 0 at end of array
-                if (o1.getCarIdxLap() > o2.getCarIdxLap()) {
+                if (o1.getLiveData().getCarIdxLap() > o2.getLiveData().getCarIdxLap()) {
                     return -1;
-                } else if (o1.getCarIdxLap() == o2.getCarIdxLap()) {
+                } else if (o1.getLiveData().getCarIdxLap() == o2.getLiveData().getCarIdxLap()) {
                     return 0;
                 } else {
                     return 1;
@@ -210,7 +186,7 @@ public class LapTimingService {
             float time = 0.0f;
             if (i != 0) {
                 LapTimingData prevDriver = lapTimingData.get(i - 1);
-                time = Math.abs(prevDriver.getCarIdxEstTime() - lapTimingData.get(i).getCarIdxEstTime());
+                time = Math.abs(prevDriver.getLiveData().getCarIdxEstTime() - lapTimingData.get(i).getLiveData().getCarIdxEstTime());
             }
             lapTimingData.get(i).setCarIntervalWithPreviousCar(time);
         });

@@ -1,6 +1,7 @@
 /*
  *
  *    Copyright (C) 2020 Joffrey Bonifay
+ *    Copyright (C) 2021 Ramsés Corporales
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,6 +26,7 @@ package com.joffrey.iracing.irsdkjava.laptiming.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 public class LapTimingData {
@@ -37,33 +39,12 @@ public class LapTimingData {
     private float carIntervalWithPreviousCar;
 
     // Live data
-    private int   carIdxPosition;
-    private int   carIdxClassPosition;
-    private float carIdxEstTime;
-    private float carIdxF2Time;
-    private int   carIdxLap;
-    private float carIdxLapDistPct;
-    private float carIdxLastLapTime;
-    private float carIdxBestLapTime;
+    private LiveData liveData = new LiveData();
 
-    private String carIdxTrackSurface; // Use this for know if car is in world
-    private String carIsPaceCar;
-    private String carIsAI;
-    private String userName;
-    private String teamName;
-    private String carNumber;
-    private String iRating;
-    private String licLevel;
-    private String licString;
-    private String licColor;
-    private String isSpectator;
-    private String clubName;
-    private String divisionName;
+    private YamlData yamlData = new YamlData();
 
-    @AllArgsConstructor
-    @Data
+    @Data @AllArgsConstructor @NoArgsConstructor
     public static class LiveData {
-
         private int   carIdxPosition;
         private int   carIdxClassPosition;
         private float carIdxEstTime;
@@ -72,19 +53,19 @@ public class LapTimingData {
         private float carIdxLapDistPct;
         private float carIdxLastLapTime;
         private float carIdxBestLapTime;
-
     }
 
-    @AllArgsConstructor
-    @Data
+    @Data @AllArgsConstructor @NoArgsConstructor
     public static class YamlData {
-
         private String carIdxTrackSurface; // Use this for know if car is in world
         private String carIsPaceCar;
         private String carIsAI;
         private String userName;
         private String teamName;
         private String carNumber;
+        private String carId;
+        private String carClassID;
+        private String carClassColor;
         private String iRating;
         private String licLevel;
         private String licString;
@@ -93,6 +74,5 @@ public class LapTimingData {
         private String clubName;
         private String divisionName;
     }
-
 
 }
