@@ -25,6 +25,8 @@ package com.joffrey.iracing.irsdkjava.yaml.irsdkyaml;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 
@@ -33,6 +35,9 @@ import lombok.Data;
 public class CamerasInfoYaml {
 
     @JsonProperty
-    private List<CamerasGroupsYaml> Groups;
+    private List<CamerasGroupsYaml> Groups = new ArrayList<>();
 
+    public static CamerasInfoYaml initEmpty() {
+        return new CamerasInfoYaml();
+    }
 }

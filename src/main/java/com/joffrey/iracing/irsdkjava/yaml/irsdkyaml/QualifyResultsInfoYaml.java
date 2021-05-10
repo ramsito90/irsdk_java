@@ -25,6 +25,8 @@ package com.joffrey.iracing.irsdkjava.yaml.irsdkyaml;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 
@@ -33,6 +35,9 @@ import lombok.Data;
 public class QualifyResultsInfoYaml {
 
     @JsonProperty
-    private List<QualifyResultInfoYaml> Results;
+    private List<QualifyResultInfoYaml> Results = new ArrayList<>();
 
+    public static QualifyResultsInfoYaml initEmpty() {
+        return new QualifyResultsInfoYaml();
+    }
 }

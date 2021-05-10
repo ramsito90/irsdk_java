@@ -123,4 +123,10 @@ public class WeekendInfoYaml {
     @JsonProperty
     private TelemetryOptionsYaml TelemetryOptions;
 
+    public static WeekendInfoYaml initEmpty() {
+        WeekendInfoYaml weekendInfoYaml = new WeekendInfoYaml();
+        weekendInfoYaml.setWeekendOptions(new WeekendOptionsYaml());
+        weekendInfoYaml.setTelemetryOptions(new TelemetryOptionsYaml());
+        return weekendInfoYaml;
+    }
 }

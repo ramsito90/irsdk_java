@@ -25,6 +25,8 @@ package com.joffrey.iracing.irsdkjava.yaml.irsdkyaml;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 
@@ -35,6 +37,9 @@ public class RadiosInfoYaml {
     @JsonProperty
     private String              SelectedRadioNum = "";
     @JsonProperty
-    private List<RadioInfoYaml> Radio;
+    private List<RadioInfoYaml> Radio = new ArrayList<>();
 
+    public static RadiosInfoYaml initEmpty() {
+        return new RadiosInfoYaml();
+    }
 }

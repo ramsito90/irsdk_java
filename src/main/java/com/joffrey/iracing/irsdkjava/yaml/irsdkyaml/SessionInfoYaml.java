@@ -25,6 +25,8 @@ package com.joffrey.iracing.irsdkjava.yaml.irsdkyaml;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 
@@ -35,6 +37,9 @@ public class SessionInfoYaml {
     @JsonProperty
     private String            NumSession = "";
     @JsonProperty
-    private List<SessionYaml> Sessions;
+    private List<SessionYaml> Sessions = new ArrayList<>();
 
+    public static SessionInfoYaml initEmpty() {
+        return new SessionInfoYaml();
+    }
 }

@@ -46,7 +46,7 @@ public class YamlService {
     public YamlService(FluxProperties fluxProperties, SdkStarter sdkStarter) {
         this.fluxProperties = fluxProperties;
         this.sdkStarter = sdkStarter;
-        this.yamlFile = new YamlFile();
+        this.yamlFile = YamlFile.initEmpty();
         Flux<YamlFile> map =
                 Flux.interval(Duration.ofMillis(fluxProperties.getYamlIntervalInMs())).filter(aLong -> sdkStarter.isRunning())
                     .map(aLong -> yamlFile = loadYamlObject());

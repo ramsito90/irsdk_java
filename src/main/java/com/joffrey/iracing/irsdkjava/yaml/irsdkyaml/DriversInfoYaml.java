@@ -76,4 +76,7 @@ public class DriversInfoYaml {
     private List<DriverInfoYaml> Drivers = new ArrayList<>();
 
 
+    public static DriversInfoYaml initEmpty() {
+        return new DriversInfoYaml();
+    }
 }

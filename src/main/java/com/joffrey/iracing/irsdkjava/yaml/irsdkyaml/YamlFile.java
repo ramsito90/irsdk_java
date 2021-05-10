@@ -46,4 +46,15 @@ public class YamlFile {
     @JsonProperty
     private SplitTimeInfoYaml      SplitTimeInfo;
 
+    public static YamlFile initEmpty() {
+        YamlFile yamlFile = new YamlFile();
+        yamlFile.setWeekendInfo(WeekendInfoYaml.initEmpty());
+        yamlFile.setSessionInfo(SessionInfoYaml.initEmpty());
+        yamlFile.setQualifyResultsInfo(QualifyResultsInfoYaml.initEmpty());
+        yamlFile.setCameraInfo(CamerasInfoYaml.initEmpty());
+        yamlFile.setRadioInfo(RadiosInfoYaml.initEmpty());
+        yamlFile.setDriverInfo(DriversInfoYaml.initEmpty());
+        yamlFile.setSplitTimeInfo(SplitTimeInfoYaml.initEmpty());
+        return yamlFile;
+    }
 }
